@@ -17,6 +17,7 @@ export default function LoginScreen({ navigation }) {
       .signInWithEmailAndPassword(email, password)
       .then(()=>{
       navigation.navigate("Chat");
+      //console.log("Signed in!");
     })
       .catch((error)=>{
       console.log(error.message);
