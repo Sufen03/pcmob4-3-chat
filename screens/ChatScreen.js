@@ -57,7 +57,7 @@ export default function ChatScreen() {
 				  backgroundColor: "#666",
 				},
 			}}
-			user={{_id: 1,}}
+			user={{_id: 1, name: "Sufen"}}
 		/>
   );
 }
