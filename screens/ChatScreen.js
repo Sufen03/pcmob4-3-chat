@@ -3,7 +3,8 @@ import React, {useEffect, useState} from 'react';
 import firebase from '../database/firebaseDB';
 import { GiftedChat } from 'react-native-gifted-chat';
 
-const auth = firebase.auth();
+//const auth = firebase.auth();
+const db = firebase.firestore().collection("messages");
 
 const demoMessage = {
   _id: 1,
@@ -20,7 +21,18 @@ const demoMessage = {
 export default function ChatScreen() {
   const [messages, setMessages] = useState([]);
   useEffect(()=>{
-    setMessages([demoMessage]);
+    const unsubscribe = db
+      .orderBy("createdAt", "desc")
+      .onSnapshot((collectionSnapshot) => {
+        const messages = collectionSnapshot.docs.map((doc) => {
+          const date = doc.data().createdAt.toDate();
+          const newDoc = { ...doc.data(), createdAt: date };
+          return newDoc;
+        });
+        setMessages(messages);
+      });
+    return unsubscribe;
+
     //auth.onAuthStateChanged((user)=>{
       //if (user){
         //navigation.navigate("Chat",{id: user.id, email: user.email});
@@ -32,7 +44,7 @@ export default function ChatScreen() {
 
   function sendMessages(newMessages){
     console.log(newMessages);
-    setMessages([...messages, ...newMessages]);
+    db.add(newMessages[0]);
   }
 
   return (
