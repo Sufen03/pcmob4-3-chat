@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, TextInput,} from 'react-native';
+import { StyleSheet, Text, View, TextInput, Keyboard,} from 'react-native';
 import React, { useState } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { TouchableOpacity } from 'react-native-gesture-handler';
@@ -9,14 +9,24 @@ const auth = firebase.auth();
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [errorText, setErrorText] = useState("");
 
   function login(){
-    auth.signInWithEmailAndPassword(email, password).then(()=>navigation.navigate("Chat")
-  );
+    Keyboard.dismiss();
+    auth
+      .signInWithEmailAndPassword(email, password)
+      .then(()=>{
+      navigation.navigate("Chat");
+    })
+      .catch((error)=>{
+      console.log(error.message);
+      setErrorText(error.message);
+  });
   }
 
   return (
     <View style={styles.container}>
+
       <Text style={styles.title}>Chat App</Text>
       <Text style={styles.fieldTitle}>Email</Text>
       <TextInput 
@@ -33,14 +43,22 @@ export default function LoginScreen({ navigation }) {
       onChangeText={(text)=>setPassword(text)}
       value={password}
       />
+      
       <TouchableOpacity style={styles.loginButton} onPress={login}>
         <Text style={styles.buttonText}>Log In</Text>
       </TouchableOpacity>
+
+      <Text style={styles.errorText}>{errorText}</Text>
+
     </View>
   )
 }
 
 const styles = StyleSheet.create({
+  errorText:{
+    color: "red",
+    marginVertical: 20,
+  },
   container: {
     flex: 1,
     justifyContent: "center",
