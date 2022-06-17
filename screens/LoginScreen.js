@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View, TextInput, Keyboard,} from 'react-native';
 import React, { useState } from 'react';
-import { createStackNavigator } from '@react-navigation/stack';
+//import { createStackNavigator } from '@react-navigation/stack';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import firebase from '../database/firebaseDB';
 

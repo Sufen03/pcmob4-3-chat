@@ -1,26 +1,32 @@
-import { StyleSheet, Text, View, Button } from 'react-native';
+import { StyleSheet, Text, View, Button, TouchableOpacity } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import firebase from '../database/firebaseDB';
 import { GiftedChat } from 'react-native-gifted-chat';
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
-//const auth = firebase.auth();
+const auth = firebase.auth();
+
 const db = firebase.firestore().collection("messages");
 
-const demoMessage = {
-  _id: 1,
-				text: 'Hello there!',
-				createdAt: new Date(),
-				user: {
-					_id: 2,
-					name: 'Demo person',
-					avatar: 'https://placeimg.com/140/140/any'
-				}
-
-};
-
-export default function ChatScreen() {
+export default function ChatScreen({navigation}) {
   const [messages, setMessages] = useState([]);
   useEffect(()=>{
+    auth.onAuthStateChanged((user)=>{
+      if (user){
+        navigation.navigate("Chat", {id: user.id, email: user.email});
+      } else {
+        navigation.navigate("Login");
+      }
+    });
+    
+    navigation.setOptions({
+      headerRight:()=>(
+        <TouchableOpacity onPress={logout}>
+          <MaterialCommunityIcons name="logout" size={30} color="grey" />
+        </TouchableOpacity>
+      ),
+    });
+
     const unsubscribe = db
       .orderBy("createdAt", "desc")
       .onSnapshot((collectionSnapshot) => {
@@ -32,15 +38,9 @@ export default function ChatScreen() {
         setMessages(messages);
       });
     return unsubscribe;
-
-    //auth.onAuthStateChanged((user)=>{
-      //if (user){
-        //navigation.navigate("Chat",{id: user.id, email: user.email});
-      //} else {
-        //navigation.navigate("Login");
-      //}
-    //});
   }, []);
+
+  const logout = () => auth.signOut();
 
   function sendMessages(newMessages){
     console.log(newMessages);
@@ -50,14 +50,9 @@ export default function ChatScreen() {
   return (
     <GiftedChat
 			messages={messages}
-			onSend={(newMessages) => sendMessages(newMessages)}
-			renderUsernameOnMessage={true}
-			listViewProps={{
-				style: {
-				  backgroundColor: "#666",
-				},
-			}}
-			user={{_id: 1, name: "Sufen"}}
+			onSend={sendMessages}
+      listViewProps={{style: {backgroundColor: "#666"} }}
+			user={{_id: auth.currentUser?.uid, name: auth.currentUser?.email}}
 		/>
   );
 }
